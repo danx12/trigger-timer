@@ -30,7 +30,7 @@ pixi run install      # bun install + prek hooks (pre-commit and pre-push)
 
 Safari (iOS and macOS), Chrome (Android and desktop) and Firefox (desktop and Android). iOS Firefox and Chrome are
 WebKit under the hood and behave like Safari. Firefox notes: the microphone and output devices must run at the same
-sample rate (the app warns if not), spoken cues use the system speech engine and can pop when they end on Firefox/macOS (tones are unaffected), and Firefox desktop does not install PWAs, but the offline cache still works.
+sample rate (the app warns if not), custom spoken text uses the system speech engine and can pop when it ends on Firefox/macOS (the built-in words and tones are unaffected), and Firefox desktop does not install PWAs, but the offline cache still works.
 
 ## Using it
 
@@ -41,6 +41,13 @@ sample rate (the app warns if not), spoken cues use the system speech engine and
   4 KB, are sent with every request, and Safari expires them).
 - **Detect**: calibrate the microphone click detector (3 s of silence, then 5 dry-fires). Detected shots are scored
   `before-aim / early / green / late` and kept in **History** (CSV export).
+
+### Spoken cues
+
+Mount, Aim, Green, Abort and Rest ship as audio clips in `public/voice/` and play on the same sample-accurate audio
+clock as the tones. Any other spoken text falls back to the browser's speech engine. To re-render or change the voice
+(macOS only): `python3 scripts/generate-voice.py --voice Samantha --rate 185`. Add words by editing `WORDS` in that
+script and `VOICE_WORDS` in `src/lib/audio/voice.ts`.
 
 ### How the click detector works
 
