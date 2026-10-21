@@ -1,0 +1,42 @@
+repos:
+  - repo: builtin
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+        exclude: '^tsconfig.*\.json$'
+      - id: check-merge-conflict
+      - id: check-added-large-files
+  - repo: local
+    hooks:
+      - id: biome
+        name: biome check
+        entry: pixi run bunx biome check --write --no-errors-on-unmatched --files-ignore-unknown=true
+        language: system
+        types_or: [ts, svelte, json, css, html]
+      - id: svelte-check
+        name: svelte-check
+        entry: pixi run bun run check
+        language: system
+        pass_filenames: false
+        types_or: [ts, svelte]
+      - id: typos
+        name: typos
+        entry: pixi run typos
+        language: system
+        exclude: '(^(bun|pixi)\.lock$|\.png$)'
+      - id: test
+        name: vitest
+        entry: pixi run bun run test
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: build
+        name: build
+        entry: pixi run bun run build
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

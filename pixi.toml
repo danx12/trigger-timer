@@ -1,0 +1,23 @@
+[workspace]
+authors = ["Daniel Villarreal <daniel.villarreal12@gmail.com>"]
+channels = ["conda-forge"]
+name = "trigger-timer"
+platforms = ["osx-arm64", "osx-64", "linux-64"]
+version = "0.1.0"
+
+[tasks]
+install = "bun install && prek install --hook-type pre-commit --hook-type pre-push"
+dev = "bun run dev"
+dev-https = "bun run dev:https"
+build = "bun run build"
+test = "bun run test"
+lint = "bun run lint"
+check = "bun run check"
+tunnel = "bunx cloudflared tunnel --url http://localhost:5173"
+
+[dependencies]
+bun = ">=1.4.2,<2"
+prek = ">=0.5.7,<0.6"
+mkcert = ">=1.4.4,<2"
+typos = ">=1.51.1,<2"
+nodejs = ">=26.10.0,<26.11"
