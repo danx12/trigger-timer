@@ -35,12 +35,6 @@ sample rate (the app warns if not), and Firefox desktop does not install PWAs, b
 ## Using it
 
 - **Timer**: pick a preset and press Start. Audio starts on that tap (required by Safari). The screen is kept awake.
-- **AirPods / headset button** (optional, on the Timer screen): with "Start with the AirPods / headset play button" on,
-  tap **Arm** once; nothing counts until you press play/pause on your AirPods (or lock-screen controls, or a keyboard
-  media key). Pressing again stops the session and returns to armed; the stop control disarms. It uses the Media
-  Session API with an inaudible looping audio element, because browsers only route headset buttons to a page that is
-  playing media. Caveats: with shot detection on, iOS may switch the microphone to the AirPods (lower audio quality);
-  and cue timing keeps running with the screen locked only as far as the browser lets the page run.
 - **Presets**: edit phase times, tone pitch/wave/length/repeats/volume (with ▶ preview) and spoken cue text. Share
   produces `…/#p=<base64url JSON>`; opening it offers to import. Presets live in `localStorage` (cookies are capped at
   4 KB, are sent with every request, and Safari expires them).

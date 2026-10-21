@@ -11,7 +11,6 @@ import {
 import { phaseAt, Scheduler } from '../lib/audio/scheduler'
 import { cancelSpeech, speak } from '../lib/audio/speech'
 import { ClickDetector } from '../lib/detect/detector'
-import { MediaControls } from '../lib/media/session'
 import { classifyShot, type Shot } from '../lib/session/classify'
 import { saveSession } from '../lib/session/history'
 import { activePreset, app, updateSettings } from '../lib/state.svelte'
@@ -19,10 +18,6 @@ import { activePreset, app, updateSettings } from '../lib/state.svelte'
 const preset = $derived(activePreset())
 
 let running = $state(false)
-let starting = false
-/** Waiting for a headset play press (or the on-screen button) to start counting. */
-let armed = $state(false)
-const media = new MediaControls()
 let error = $state('')
 let elapsed = $state(-1)
 let shots = $state<Shot[]>([])
@@ -49,8 +44,6 @@ function frame() {
 }
 
 async function start() {
-  if (running || starting) return
-  starting = true
   error = ''
   try {
     const ctx = await unlockAudio()
@@ -87,19 +80,15 @@ async function start() {
     }
     scheduler.start()
     running = true
-    media.setRunning(true)
     void holdScreenAwake()
     raf = requestAnimationFrame(frame)
   } catch (e) {
     error = (e as Error).message
-  } finally {
-    starting = false
   }
 }
 
 function stop() {
   running = false
-  media.setRunning(false)
   cancelAnimationFrame(raf)
   const cycles = pos ? pos.cycle + 1 : 0
   scheduler?.stop()
@@ -120,39 +109,13 @@ function stop() {
   elapsed = -1
 }
 
-async function arm() {
-  error = ''
-  try {
-    await unlockAudio()
-    await media.arm({
-      title: 'Trigger Timer',
-      artist: preset.name,
-      onToggle: () => (running ? stop() : void start()),
-      onStop: disarm,
-    })
-    armed = true
-  } catch (e) {
-    error = `Headset control unavailable: ${(e as Error).message}`
-  }
-}
-
-function disarm() {
-  if (running) stop()
-  media.disarm()
-  armed = false
-}
-
-$effect(() => {
-  if (armed) media.setTitle(preset.name)
-})
-
 function onVisible() {
   if (running && document.visibilityState === 'visible') void holdScreenAwake()
 }
 document.addEventListener('visibilitychange', onVisible)
 onDestroy(() => {
   document.removeEventListener('visibilitychange', onVisible)
-  disarm()
+  if (running) stop()
 })
 
 $effect(() => {
@@ -204,17 +167,6 @@ const bg = $derived(pos ? `color-mix(in srgb, ${pos.phase.color} 35%, #0b0f14)` 
       {#if app.settings.detect && app.settings.threshold === null}
         <div class="muted">Not calibrated yet — use the Detect tab first for reliable results.</div>
       {/if}
-      {#if MediaControls.supported}
-        <label class="row">
-          <input
-            type="checkbox"
-            style="width:auto;min-height:0"
-            checked={app.settings.mediaKeys}
-            onchange={(e) => updateSettings({ mediaKeys: e.currentTarget.checked })}
-          />
-          Start with the AirPods / headset play button
-        </label>
-      {/if}
       <label>
         Volume
         <input
@@ -228,23 +180,7 @@ const bg = $derived(pos ? `color-mix(in srgb, ${pos.phase.color} 35%, #0b0f14)` 
       </label>
     </div>
     {#if error}<div class="error">{error}</div>{/if}
-    {#if armed}
-      <div class="banner">
-        <strong>Armed</strong>
-        <span class="muted">
-          Press play/pause on your AirPods or headset to start counting. Press again to stop.
-        </span>
-      </div>
-      <button type="button" class="primary" style="min-height:64px;font-size:1.2rem" onclick={start}>Start now</button>
-      <button type="button" onclick={disarm}>Disarm headset</button>
-    {:else if app.settings.mediaKeys}
-      <button type="button" class="primary" style="min-height:64px;font-size:1.2rem" onclick={arm}>
-        Arm — then press play
-      </button>
-      <button type="button" onclick={start}>Start now</button>
-    {:else}
-      <button type="button" class="primary" style="min-height:64px;font-size:1.2rem" onclick={start}>Start</button>
-    {/if}
+    <button type="button" class="primary" style="min-height:64px;font-size:1.2rem" onclick={start}>Start</button>
   {:else}
     <div class="row">
       <span class="chip">{preset.name}</span>
