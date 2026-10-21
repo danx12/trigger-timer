@@ -1,6 +1,5 @@
 import type { Phase, Preset } from '../model/preset'
 import { cueLength, playCue } from './cues'
-import { playClip } from './voice'
 
 export interface PhasePosition {
   cycle: number
@@ -70,8 +69,6 @@ export class Scheduler {
     private ctx: AudioContext,
     private dest: AudioNode,
     private getPreset: () => Preset,
-    /** Returns a decoded spoken clip to play with a phase's tone, if speech is on and one exists. */
-    private getVoice: (phase: Phase) => AudioBuffer | undefined = () => undefined,
   ) {}
 
   start(t0 = this.ctx.currentTime + 0.1): void {
@@ -112,10 +109,7 @@ export class Scheduler {
       if (time > horizon) break
       const when = Math.max(time, this.ctx.currentTime)
       playCue(this.ctx, this.dest, phase.cue, when)
-      let end = when + cueLength(phase.cue)
-      const voice = this.getVoice(phase)
-      if (voice) end = Math.max(end, playClip(this.ctx, this.dest, voice, when))
-      this.windows.push({ start: when, end })
+      this.windows.push({ start: when, end: when + cueLength(phase.cue) })
       if (this.windows.length > 64) this.windows.shift()
       this.onCue?.({ time, cycle, phase })
       this.nextIndex++

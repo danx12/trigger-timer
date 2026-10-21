@@ -1,7 +1,6 @@
 <script lang="ts">
 import { getAudio, unlockAudio } from '../lib/audio/context'
 import { playCue } from '../lib/audio/cues'
-import { clipFor } from '../lib/audio/voice'
 import { CUE_PRESETS, type Phase, type Preset, validatePreset, WAVES } from '../lib/model/preset'
 import { app, savePreset } from '../lib/state.svelte'
 
@@ -79,11 +78,7 @@ function save() {
       </div>
       <label>Instructions <textarea bind:value={phase.instructions} maxlength="300"></textarea></label>
       <div class="grid2">
-        <label>
-          Spoken cue
-          <input bind:value={phase.speak} maxlength="40" />
-          <span>{phase.speak && clipFor(phase.speak) ? 'built-in voice clip' : phase.speak ? 'system speech engine' : ''}</span>
-        </label>
+        <label>Spoken cue <input bind:value={phase.speak} maxlength="40" /></label>
         <label>Colour <input type="color" bind:value={phase.color} /></label>
       </div>
       <strong>Tone</strong>

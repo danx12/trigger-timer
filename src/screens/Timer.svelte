@@ -10,7 +10,6 @@ import {
 } from '../lib/audio/context'
 import { phaseAt, Scheduler } from '../lib/audio/scheduler'
 import { cancelSpeech, speak } from '../lib/audio/speech'
-import { clipFor, loadVoices, needsSpeechEngine, type VoiceBank, voiceFor } from '../lib/audio/voice'
 import { ClickDetector } from '../lib/detect/detector'
 import { isFirefox } from '../lib/env'
 import { classifyShot, type Shot } from '../lib/session/classify'
@@ -52,16 +51,9 @@ async function start() {
     const { master } = getAudio()
     setMasterVolume(app.settings.masterVolume)
     setAudioSession(app.settings.detect ? 'play-and-record' : 'playback')
-    const voices: VoiceBank = app.settings.speak ? await loadVoices(ctx, preset) : new Map()
-    scheduler = new Scheduler(
-      ctx,
-      master,
-      () => preset,
-      (phase) => (app.settings.speak ? voiceFor(voices, phase) : undefined),
-    )
+    scheduler = new Scheduler(ctx, master, () => preset)
     scheduler.onCue = (e) => {
-      // Built-in clips play on the audio clock; only other text goes through the speech engine.
-      if (!app.settings.speak || voiceFor(voices, e.phase)) return
+      if (!app.settings.speak) return
       const delay = Math.max(0, (e.time - ctx.currentTime) * 1000)
       setTimeout(() => running && speak(e.phase.speak, app.settings.masterVolume), delay)
     }
@@ -164,10 +156,10 @@ const bg = $derived(pos ? `color-mix(in srgb, ${pos.phase.color} 35%, #0b0f14)` 
         />
         Speak phase names
       </label>
-      {#if isFirefox && app.settings.speak && needsSpeechEngine(preset)}
+      {#if isFirefox && app.settings.speak}
         <div class="muted">
-          Custom spoken text uses the system speech engine, which can pop when it ends in Firefox (heard on macOS). The
-          built-in words (Mount, Aim, Green, Abort, Rest) are not affected.
+          Firefox can pop when a spoken cue ends (heard on macOS). The tones are unaffected; use Chrome or Safari if
+          the pop bothers you.
         </div>
       {/if}
       <label class="row">
