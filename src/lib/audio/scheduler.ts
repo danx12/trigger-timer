@@ -56,6 +56,8 @@ export interface CueWindow {
 
 const TICK_MS = 25
 const HORIZON_S = 0.25
+/** Background tabs throttle timers, so queue further ahead (the audio clock itself is unaffected). */
+const HIDDEN_HORIZON_S = 3
 
 /** Look-ahead scheduler: queues cue oscillators slightly ahead of the audio clock. */
 export class Scheduler {
@@ -101,7 +103,7 @@ export class Scheduler {
   private tick(): void {
     const preset = this.getPreset()
     const perCycle = preset.phases.length
-    const horizon = this.ctx.currentTime + HORIZON_S
+    const horizon = this.ctx.currentTime + (document.hidden ? HIDDEN_HORIZON_S : HORIZON_S)
     for (;;) {
       const cycle = Math.floor(this.nextIndex / perCycle)
       const phase = preset.phases[this.nextIndex % perCycle]

@@ -29,6 +29,7 @@ export interface Settings {
   threshold: number | null
   noiseFloor: number | null
   speak: boolean
+  mediaKeys: boolean
   masterVolume: number
 }
 
@@ -37,6 +38,7 @@ export const DEFAULT_SETTINGS: Settings = {
   threshold: null,
   noiseFloor: null,
   speak: false,
+  mediaKeys: false,
   masterVolume: 1,
 }
 
