@@ -34,7 +34,8 @@ sample rate (the app warns if not), and Firefox desktop does not install PWAs, b
 
 ## Using it
 
-- **Timer**: pick a preset and press Start. Audio starts on that tap (required by Safari). The screen is kept awake.
+- **Timer**: pick a preset and press Start. Audio starts on that tap (required by Safari). The screen is kept awake. Keep the app in the foreground: cues are scheduled only a fraction of a second ahead,
+  so a backgrounded page or locked screen can drop them.
 - **Presets**: edit phase times, tone pitch/wave/length/repeats/volume (with ▶ preview) and spoken cue text. Share
   produces `…/#p=<base64url JSON>`; opening it offers to import. Presets live in `localStorage` (cookies are capped at
   4 KB, are sent with every request, and Safari expires them).
@@ -50,8 +51,14 @@ the app's own cues are ignored. Microphone input latency is not compensated, so 
 
 ## Deploy
 
-Vercel detects Vite and `bun.lock`: import the repo, or run `bunx vercel`. HTTPS (required for the microphone) is
+Vercel detects Vite and `bun.lock`: import the repo, or run `pixi run bunx vercel`. HTTPS (required for the microphone) is
 automatic. `vercel.json` pins the build command and output directory.
+
+## CI and dependency updates
+
+GitHub Actions (`.github/workflows/ci.yml`) runs the same prek hooks, tests and build as the local hooks.
+[Renovate](https://docs.renovatebot.com) (`renovate.json`) updates npm, GitHub Actions and pixi dependencies weekly with
+a 7-day release-age cooldown (14 days for majors). It needs the Renovate GitHub app installed on the repo.
 
 ## Testing on iOS
 
