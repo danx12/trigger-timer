@@ -30,7 +30,7 @@ pixi run install      # bun install + prek hooks (pre-commit and pre-push)
 
 Safari (iOS and macOS), Chrome (Android and desktop) and Firefox (desktop and Android). iOS Firefox and Chrome are
 WebKit under the hood and behave like Safari. Firefox notes: the microphone and output devices must run at the same
-sample rate (the app warns if not), and Firefox desktop does not install PWAs, but the offline cache still works.
+sample rate (the app warns if not), spoken cues use the system speech engine and can pop when they end on Firefox/macOS (tones are unaffected), and Firefox desktop does not install PWAs, but the offline cache still works.
 
 ## Using it
 

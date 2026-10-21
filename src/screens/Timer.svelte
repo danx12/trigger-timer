@@ -11,6 +11,7 @@ import {
 import { phaseAt, Scheduler } from '../lib/audio/scheduler'
 import { cancelSpeech, speak } from '../lib/audio/speech'
 import { ClickDetector } from '../lib/detect/detector'
+import { isFirefox } from '../lib/env'
 import { classifyShot, type Shot } from '../lib/session/classify'
 import { saveSession } from '../lib/session/history'
 import { activePreset, app, updateSettings } from '../lib/state.svelte'
@@ -155,6 +156,12 @@ const bg = $derived(pos ? `color-mix(in srgb, ${pos.phase.color} 35%, #0b0f14)` 
         />
         Speak phase names
       </label>
+      {#if isFirefox && app.settings.speak}
+        <div class="muted">
+          Firefox can pop when a spoken cue ends (heard on macOS). The tones are unaffected; use Chrome or Safari if
+          the pop bothers you.
+        </div>
+      {/if}
       <label class="row">
         <input
           type="checkbox"
