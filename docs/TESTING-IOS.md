@@ -15,7 +15,6 @@ All commands run through pixi so mkcert and Bun come from the pinned environment
 ## B. Real iPhone against the Mac dev server (real mic, speaker and latency)
 
 The iPhone needs HTTPS it trusts for the microphone and service worker:
-
 1. `pixi run mkcert -install`
 2. `mkdir -p .certs && pixi run mkcert -cert-file .certs/dev.pem -key-file .certs/dev-key.pem <mac-name>.local <LAN-IP> localhost`
 3. AirDrop `$(pixi run mkcert -CAROOT)/rootCA.pem` to the iPhone, then Settings → Profile Downloaded → Install, and

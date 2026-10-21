@@ -11,8 +11,24 @@ export function getAudio(): { ctx: AudioContext; master: GainNode } {
     ctx = new Ctor({ latencyHint: 'interactive' })
     master = ctx.createGain()
     master.connect(ctx.destination)
+    startKeepAlive(ctx)
   }
   return { ctx, master: master as GainNode }
+}
+
+/**
+ * Plays a constant, inaudible noise floor (about -72 dBFS). Browsers (notably Firefox and Safari) let the
+ * output device idle when nothing is playing, and waking it for the next cue produces a pop.
+ */
+function startKeepAlive(ctx: AudioContext): void {
+  const buf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.00025
+  const src = ctx.createBufferSource()
+  src.buffer = buf
+  src.loop = true
+  src.connect(ctx.destination)
+  src.start()
 }
 
 /** Must be called from a user gesture (tap) to satisfy Safari's autoplay policy. */

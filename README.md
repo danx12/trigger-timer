@@ -15,16 +15,22 @@ pixi install
 pixi run install      # bun install + prek hooks (pre-commit and pre-push)
 ```
 
-| Task | Command |
-| --- | --- |
-| Dev server | `pixi run dev` (http://localhost:5173, also on the LAN) |
-| HTTPS dev server | `pixi run dev-https` (needs `.certs/`, see [iOS testing](docs/TESTING-IOS.md)) |
-| Production build | `pixi run build` |
-| Tests | `pixi run test` |
-| Lint / format | `pixi run lint` · `pixi run bun run format` |
-| Type check | `pixi run check` |
-| All hooks | `pixi run prek run --all-files` |
-| Public HTTPS tunnel | `pixi run tunnel` |
+| Task                | Command                                                                        |
+| ------------------- | ------------------------------------------------------------------------------ |
+| Dev server          | `pixi run dev` (http://localhost:5173, also on the LAN)                        |
+| HTTPS dev server    | `pixi run dev-https` (needs `.certs/`, see [iOS testing](docs/TESTING-IOS.md)) |
+| Production build    | `pixi run build`                                                               |
+| Tests               | `pixi run test`                                                                |
+| Lint / format       | `pixi run lint` · `pixi run bun run format`                                    |
+| Type check          | `pixi run check`                                                               |
+| All hooks           | `pixi run prek run --all-files`                                                |
+| Public HTTPS tunnel | `pixi run tunnel`                                                              |
+
+## Browser support
+
+Safari (iOS and macOS), Chrome (Android and desktop) and Firefox (desktop and Android). iOS Firefox and Chrome are
+WebKit under the hood and behave like Safari. Firefox notes: the microphone and output devices must run at the same
+sample rate (the app warns if not), and Firefox desktop does not install PWAs, but the offline cache still works.
 
 ## Using it
 

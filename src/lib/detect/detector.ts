@@ -29,8 +29,17 @@ export class ClickDetector {
         noiseSuppression: false,
         autoGainControl: false,
         channelCount: 1,
+        // Firefox cannot connect a stream to a context running at a different rate.
+        sampleRate: { ideal: this.ctx.sampleRate },
       },
     })
+    const micRate = this.stream.getAudioTracks()[0]?.getSettings().sampleRate
+    if (micRate && micRate !== this.ctx.sampleRate) {
+      this.stop()
+      throw new Error(
+        `the microphone runs at ${micRate} Hz but audio output at ${this.ctx.sampleRate} Hz; use the same device for both`,
+      )
+    }
     await this.ctx.audioWorklet.addModule(workletUrl)
     const src = this.ctx.createMediaStreamSource(this.stream)
     const hp = this.ctx.createBiquadFilter()
