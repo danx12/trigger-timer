@@ -21,6 +21,9 @@ const preset = $derived(activePreset())
 let running = $state(false)
 let error = $state('')
 let voiceStatus = $state('')
+let audioState = $state('')
+let drift = $state(0)
+let perfStart = 0
 let elapsed = $state(-1)
 let shots = $state<Shot[]>([])
 let sessionId = ''
@@ -42,6 +45,7 @@ const RESULT_TEXT: Record<string, string> = {
 function frame() {
   if (!scheduler) return
   elapsed = scheduler.elapsed()
+  drift = Math.round(((performance.now() - perfStart) / 1000 - elapsed) * 1000)
   raf = requestAnimationFrame(frame)
 }
 
@@ -56,6 +60,8 @@ async function start() {
     setMasterVolume(app.settings.masterVolume)
     setAudioSession(app.settings.detect ? 'play-and-record' : 'playback')
     scheduler = new Scheduler(ctx, master, () => preset)
+    audioState = ctx.state
+    ctx.onstatechange = () => (audioState = ctx.state)
     scheduler.onCue = (e) => {
       if (!app.settings.speak) return
       const delay = Math.max(0, (e.time - ctx.currentTime) * 1000)
@@ -84,6 +90,7 @@ async function start() {
       }
     }
     scheduler.start()
+    perfStart = performance.now() + 100
     running = true
     void holdScreenAwake()
     raf = requestAnimationFrame(frame)
@@ -223,6 +230,7 @@ const bg = $derived(pos ? `color-mix(in srgb, ${pos.phase.color} 35%, #0b0f14)` 
     {/if}
     {#if app.settings.speak && voiceStatus}
       <div class="muted">Voice: {voiceStatus}</div>
+      <div class="muted">Audio: {audioState} · clock drift {drift} ms</div>
     {/if}
     {#if lastShot}
       <div class="card">
