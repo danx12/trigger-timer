@@ -154,3 +154,29 @@ export function clonePreset(p: Preset): Preset {
   // JSON round-trip also copes with Svelte $state proxies, which structuredClone rejects.
   return JSON.parse(JSON.stringify(p))
 }
+
+/**
+ * A copy of `base` with extra seconds in some phases (`extra`, keyed by phase id) and `rest` more seconds at the end
+ * of the cycle, which the last phase (abort/rest) absorbs. Later phases shift by the time added before them.
+ */
+function stretch(base: Preset, name: string, extra: Record<string, number>, rest: number): Preset {
+  const p = clonePreset(base)
+  let shift = 0
+  for (const phase of p.phases) {
+    phase.startSec += shift
+    shift += extra[phase.id] ?? 0
+  }
+  return { ...p, name, cycleSec: p.cycleSec + shift + rest }
+}
+
+/** Beginners get more time to mount (+4 s) and to settle into the aiming area (+1 s). */
+const BEGINNER = { mount: 4, aim: 1 }
+
+/** Presets shipped with the app, in menu order. Each is added to a device once (see loadPresets). */
+export const BUILTIN_PRESETS: Preset[] = [
+  DEFAULT_PRESET,
+  stretch(DEFAULT_PRESET, 'Standard 14 s hold, rest +5 s', {}, 5),
+  stretch(DEFAULT_PRESET, 'Standard 14 s hold, rest +15 s', {}, 15),
+  stretch(DEFAULT_PRESET, 'Beginner 19 s hold, rest +5 s', BEGINNER, 5),
+  stretch(DEFAULT_PRESET, 'Beginner 19 s hold, rest +15 s', BEGINNER, 15),
+]

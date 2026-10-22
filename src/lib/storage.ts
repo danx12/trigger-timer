@@ -1,9 +1,16 @@
 import { defaultLang, type Lang } from './audio/voice'
-import { clonePreset, DEFAULT_PRESET, type Preset, validatePreset } from './model/preset'
+import {
+  BUILTIN_PRESETS,
+  clonePreset,
+  DEFAULT_PRESET,
+  type Preset,
+  validatePreset,
+} from './model/preset'
 
 const KEYS = {
   presets: 'tt.presets.v1',
   active: 'tt.active.v1',
+  seeded: 'tt.builtins.v1',
   settings: 'tt.settings.v1',
   sessions: 'tt.sessions.v1',
 }
@@ -47,11 +54,26 @@ export const DEFAULT_SETTINGS: Settings = {
   masterVolume: 1,
 }
 
+/**
+ * The saved presets plus any built-in preset this device has not been given yet. Each built-in is added once (by
+ * name, unless a preset of that name exists), so presets the user deleted stay deleted. A device that predates this
+ * list already had the default preset.
+ */
 export function loadPresets(): Preset[] {
   const raw = read<unknown[]>(KEYS.presets)
   const list = Array.isArray(raw)
     ? raw.map(validatePreset).filter((p): p is Preset => p !== null)
     : []
+  const seeded = new Set(read<string[]>(KEYS.seeded) ?? (list.length ? [DEFAULT_PRESET.name] : []))
+  const added = BUILTIN_PRESETS.filter((b) => !seeded.has(b.name))
+  for (const b of added) {
+    seeded.add(b.name)
+    if (!list.some((p) => p.name === b.name)) list.push(clonePreset(b))
+  }
+  if (added.length) {
+    write(KEYS.seeded, [...seeded])
+    savePresets(list)
+  }
   return list.length ? list : [clonePreset(DEFAULT_PRESET)]
 }
 
