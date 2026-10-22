@@ -36,6 +36,8 @@ sample rate (the app warns if not), spoken cues use the system speech engine and
 
 - **Timer**: pick a preset and press Start. Audio starts on that tap (required by Safari). The screen is kept awake. Keep the app in the foreground: cues are scheduled only a fraction of a second ahead,
   so a backgrounded page or locked screen can drop them.
+- **Spoken cues**: with "Speak phase names" on, each phase name is spoken by the browser's speech engine. iOS only
+  allows speech that was unlocked by a tap, so the Start tap primes it; the ringer/silent switch and volume still apply.
 - **Presets**: edit phase times, tone pitch/wave/length/repeats/volume (with ▶ preview) and spoken cue text. Share
   produces `…/#p=<base64url JSON>`; opening it offers to import. Presets live in `localStorage` (cookies are capped at
   4 KB, are sent with every request, and Safari expires them).

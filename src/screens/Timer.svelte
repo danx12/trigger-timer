@@ -9,7 +9,7 @@ import {
   unlockAudio,
 } from '../lib/audio/context'
 import { phaseAt, Scheduler } from '../lib/audio/scheduler'
-import { cancelSpeech, speak } from '../lib/audio/speech'
+import { cancelSpeech, primeSpeech, speak } from '../lib/audio/speech'
 import { ClickDetector } from '../lib/detect/detector'
 import { isFirefox } from '../lib/env'
 import { classifyShot, type Shot } from '../lib/session/classify'
@@ -45,6 +45,8 @@ function frame() {
 }
 
 async function start() {
+  // Must run synchronously inside the tap, before any await: iOS drops speech that was never unlocked by a gesture.
+  if (app.settings.speak) primeSpeech()
   error = ''
   try {
     const ctx = await unlockAudio()

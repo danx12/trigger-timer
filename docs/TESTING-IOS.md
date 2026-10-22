@@ -4,6 +4,7 @@ All commands run through pixi so mkcert and Bun come from the pinned environment
 
 ## A. iOS Simulator on the Mac (fastest: UI, cues, PWA install)
 
+0. Needs full Xcode with its license accepted (`sudo xcodebuild -license accept`); Command Line Tools alone have no Simulator.
 1. Xcode → Settings → Components: install an iOS runtime, then `open -a Simulator`.
 2. `pixi run dev`, then open `http://localhost:5173` in the simulator's Safari. `localhost` is a secure context, so
    the microphone and service worker work without HTTPS. The simulator uses the Mac's microphone.
@@ -31,6 +32,7 @@ install, offline, the mute switch, screen lock and the full calibration flow.
 
 ## What to check on a real device
 
+- Spoken cues: turn on "Speak phase names", tap Start and listen for "Mount" at 0 s and "Aim" at 8 s along with the tones. Repeat with the silent switch on and off and after locking and unlocking the screen.
 - Cues are audible with the mute switch on and when the screen dims (the screen should stay awake while running).
 - With detection on, cues still play and the mic prompt appears once; routing may switch to the receiver, so check
   volume.
