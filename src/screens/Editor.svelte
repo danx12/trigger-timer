@@ -1,6 +1,7 @@
 <script lang="ts">
 import { getAudio, unlockAudio } from '../lib/audio/context'
 import { playCue } from '../lib/audio/cues'
+import { clipKey, PHRASES, playClip, VOICE_KEYS } from '../lib/audio/voice'
 import { CUE_PRESETS, type Phase, type Preset, validatePreset, WAVES } from '../lib/model/preset'
 import { app, savePreset } from '../lib/state.svelte'
 
@@ -11,6 +12,18 @@ let error = $state('')
 async function preview(phase: Phase) {
   const ctx = await unlockAudio()
   playCue(ctx, getAudio().master, $state.snapshot(phase.cue), ctx.currentTime + 0.05)
+}
+
+async function previewVoice(phase: Phase) {
+  const key = clipKey(phase.speak)
+  if (!key) return
+  const ctx = await unlockAudio()
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}voice/${app.settings.voiceLang}/${key}.wav`)
+    playClip(ctx, getAudio().master, await ctx.decodeAudioData(await res.arrayBuffer()), ctx.currentTime + 0.05)
+  } catch {
+    error = 'Could not load the voice clip.'
+  }
 }
 
 function addPhase() {
@@ -78,9 +91,21 @@ function save() {
       </div>
       <label>Instructions <textarea bind:value={phase.instructions} maxlength="300"></textarea></label>
       <div class="grid2">
-        <label>Spoken cue <input bind:value={phase.speak} maxlength="40" /></label>
+        <label>
+          Voice
+          <select value={clipKey(phase.speak) ?? ''} onchange={(e) => (phase.speak = e.currentTarget.value)}>
+            <option value="">None</option>
+            {#if phase.speak.trim() && !clipKey(phase.speak)}
+              <option value="" disabled>“{phase.speak}” has no clip</option>
+            {/if}
+            {#each VOICE_KEYS as k}<option value={k}>{PHRASES[app.settings.voiceLang][k]}</option>{/each}
+          </select>
+        </label>
         <label>Colour <input type="color" bind:value={phase.color} /></label>
       </div>
+      {#if clipKey(phase.speak)}
+        <button type="button" onclick={() => previewVoice(phase)}>▶ Play voice</button>
+      {/if}
       <strong>Tone</strong>
       <div class="row">
         <select

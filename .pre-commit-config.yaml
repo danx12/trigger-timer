@@ -25,7 +25,7 @@ repos:
         name: typos
         entry: pixi run typos
         language: system
-        exclude: '(^(bun|pixi)\.lock$|\.png$)'
+        exclude: '(^(bun|pixi)\.lock$|\.(png|wav)$)'
       - id: test
         name: vitest
         entry: pixi run bun run test

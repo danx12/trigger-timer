@@ -1,3 +1,4 @@
+import { defaultLang, type Lang } from './audio/voice'
 import { clonePreset, DEFAULT_PRESET, type Preset, validatePreset } from './model/preset'
 
 const KEYS = {
@@ -28,7 +29,11 @@ export interface Settings {
   detect: boolean
   threshold: number | null
   noiseFloor: number | null
+  /** Play a tone for each phase. */
+  tones: boolean
+  /** Play a spoken clip for each phase. */
   speak: boolean
+  voiceLang: Lang
   masterVolume: number
 }
 
@@ -36,7 +41,9 @@ export const DEFAULT_SETTINGS: Settings = {
   detect: false,
   threshold: null,
   noiseFloor: null,
+  tones: true,
   speak: false,
+  voiceLang: defaultLang(),
   masterVolume: 1,
 }
 
