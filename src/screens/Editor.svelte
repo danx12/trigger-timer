@@ -21,7 +21,7 @@ function addPhase() {
     instructions: '',
     startSec: Math.min(draft.cycleSec - 1, (last?.startSec ?? 0) + 1),
     color: '#7c3aed',
-    cue: { ...CUE_PRESETS.Ding },
+    cue: { ...CUE_PRESETS.Mid },
     speak: '',
   })
 }

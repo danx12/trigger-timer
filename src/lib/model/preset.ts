@@ -35,11 +35,15 @@ export interface Preset {
 
 export const WAVES: Wave[] = ['sine', 'triangle', 'square', 'sawtooth']
 
+/**
+ * Phases are told apart by pitch alone: one soft tone each, rising through the hold. The low abort tone is a triangle
+ * so its overtones carry on phone speakers, which barely reproduce a pure sine below ~250 Hz.
+ */
 export const CUE_PRESETS: Record<string, Cue> = {
-  Ding: { freq: 880, wave: 'sine', durMs: 350, repeats: 1, gapMs: 0, volume: 0.7 },
-  Soft: { freq: 440, wave: 'triangle', durMs: 500, repeats: 1, gapMs: 0, volume: 0.45 },
-  'Double beep': { freq: 1200, wave: 'square', durMs: 90, repeats: 2, gapMs: 90, volume: 0.35 },
-  Alarm: { freq: 1800, wave: 'sawtooth', durMs: 400, repeats: 3, gapMs: 120, volume: 0.45 },
+  Low: { freq: 220, wave: 'triangle', durMs: 450, repeats: 1, gapMs: 0, volume: 0.45 },
+  Mid: { freq: 440, wave: 'sine', durMs: 250, repeats: 1, gapMs: 0, volume: 0.3 },
+  'Mid-high': { freq: 523, wave: 'sine', durMs: 250, repeats: 1, gapMs: 0, volume: 0.3 },
+  High: { freq: 659, wave: 'sine', durMs: 250, repeats: 1, gapMs: 0, volume: 0.3 },
 }
 
 export const DEFAULT_PRESET: Preset = {
@@ -55,7 +59,7 @@ export const DEFAULT_PRESET: Preset = {
         'Rifle in shoulder pocket, head on the cheekpiece, take two full natural breaths.',
       startSec: 0,
       color: '#2563eb',
-      cue: CUE_PRESETS.Ding,
+      cue: CUE_PRESETS.Mid,
       speak: 'Mount',
     },
     {
@@ -65,7 +69,7 @@ export const DEFAULT_PRESET: Preset = {
         'Exhale to natural respiratory pause; lower the front globe through the target into your aiming area.',
       startSec: 8,
       color: '#d97706',
-      cue: CUE_PRESETS.Soft,
+      cue: CUE_PRESETS['Mid-high'],
       speak: 'Aim',
     },
     {
@@ -75,7 +79,7 @@ export const DEFAULT_PRESET: Preset = {
         'Peak stability. The trigger squeeze should already be moving through the second stage.',
       startSec: 11,
       color: '#16a34a',
-      cue: CUE_PRESETS['Double beep'],
+      cue: CUE_PRESETS.High,
       speak: 'Green',
     },
     {
@@ -85,7 +89,7 @@ export const DEFAULT_PRESET: Preset = {
         'If the shot has not broken, open the trigger finger and lower the rifle. Rest on the stand, breathe, reset.',
       startSec: 14,
       color: '#dc2626',
-      cue: CUE_PRESETS.Alarm,
+      cue: CUE_PRESETS.Low,
       speak: 'Abort',
     },
   ],
