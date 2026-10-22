@@ -31,6 +31,8 @@ install, offline, the mute switch, screen lock and the full calibration flow.
 
 ## What to check on a real device
 
+- Voice only and Tones + voice, in English and Deutsch: run two full cycles each. The countdown must keep running
+  through every word (it froze when the system speech engine was used), and the word starts together with the tone.
 - Cues are audible with the mute switch on and when the screen dims (the screen should stay awake while running).
 - With detection on, cues still play and the mic prompt appears once; routing may switch to the receiver, so check
   volume.

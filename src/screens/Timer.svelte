@@ -9,14 +9,31 @@ import {
   unlockAudio,
 } from '../lib/audio/context'
 import { phaseAt, Scheduler } from '../lib/audio/scheduler'
-import { cancelSpeech, speak } from '../lib/audio/speech'
+import {
+  clipKey,
+  LANGS,
+  type Lang,
+  loadVoices,
+  PHRASES,
+  phasesWithoutClip,
+  type VoiceBank,
+  voiceFor,
+} from '../lib/audio/voice'
 import { ClickDetector } from '../lib/detect/detector'
-import { isFirefox } from '../lib/env'
+import { CUE_MODES, type CueMode, cueMode, modeFlags } from '../lib/model/cues'
 import { classifyShot, type Shot } from '../lib/session/classify'
 import { saveSession } from '../lib/session/history'
 import { activePreset, app, updateSettings } from '../lib/state.svelte'
 
 const preset = $derived(activePreset())
+const mode = $derived(cueMode(app.settings))
+const silent = $derived(app.settings.speak ? phasesWithoutClip(preset) : [])
+const spoken = $derived(
+  preset.phases.flatMap((p) => {
+    const key = clipKey(p.speak)
+    return key ? [PHRASES[app.settings.voiceLang][key]] : []
+  }),
+)
 
 let running = $state(false)
 let error = $state('')
@@ -51,12 +68,16 @@ async function start() {
     const { master } = getAudio()
     setMasterVolume(app.settings.masterVolume)
     setAudioSession(app.settings.detect ? 'play-and-record' : 'playback')
-    scheduler = new Scheduler(ctx, master, () => preset)
-    scheduler.onCue = (e) => {
-      if (!app.settings.speak) return
-      const delay = Math.max(0, (e.time - ctx.currentTime) * 1000)
-      setTimeout(() => running && speak(e.phase.speak, app.settings.masterVolume), delay)
-    }
+    const voices: VoiceBank = app.settings.speak
+      ? await loadVoices(ctx, preset, app.settings.voiceLang)
+      : new Map()
+    scheduler = new Scheduler(
+      ctx,
+      master,
+      () => preset,
+      () => app.settings.tones,
+      (phase) => voiceFor(voices, phase),
+    )
     shots = []
     sessionId = crypto.randomUUID()
     startedAt = Date.now()
@@ -96,7 +117,6 @@ function stop() {
   scheduler = null
   detector?.stop()
   detector = null
-  cancelSpeech()
   void releaseScreen()
   if (app.settings.detect && cycles > 0) {
     saveSession({
@@ -147,20 +167,30 @@ const bg = $derived(pos ? `color-mix(in srgb, ${pos.phase.color} 35%, #0b0f14)` 
       </div>
     </div>
     <div class="card">
-      <label class="row">
-        <input
-          type="checkbox"
-          style="width:auto;min-height:0"
-          checked={app.settings.speak}
-          onchange={(e) => updateSettings({ speak: e.currentTarget.checked })}
-        />
-        Speak phase names
+      <label>
+        Cues
+        <select value={mode} onchange={(e) => updateSettings(modeFlags(e.currentTarget.value as CueMode))}>
+          {#each CUE_MODES as m}<option value={m.id}>{m.label}</option>{/each}
+        </select>
       </label>
-      {#if isFirefox && app.settings.speak}
+      {#if app.settings.speak}
+        <label>
+          Voice language
+          <select
+            value={app.settings.voiceLang}
+            onchange={(e) => updateSettings({ voiceLang: e.currentTarget.value as Lang })}
+          >
+            {#each LANGS as l}<option value={l.id}>{l.label}</option>{/each}
+          </select>
+        </label>
         <div class="muted">
-          Firefox can pop when a spoken cue ends (heard on macOS). The tones are unaffected; use Chrome or Safari if
-          the pop bothers you.
+          {spoken.join(' · ')}
         </div>
+        {#if silent.length}
+          <div class="muted">No voice clip for {silent.map((p) => p.label).join(', ')}. Pick one in the preset editor.</div>
+        {/if}
+      {:else if mode === 'visual'}
+        <div class="muted">Colour and countdown only.</div>
       {/if}
       <label class="row">
         <input

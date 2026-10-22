@@ -30,7 +30,7 @@ pixi run install      # bun install + prek hooks (pre-commit and pre-push)
 
 Safari (iOS and macOS), Chrome (Android and desktop) and Firefox (desktop and Android). iOS Firefox and Chrome are
 WebKit under the hood and behave like Safari. Firefox notes: the microphone and output devices must run at the same
-sample rate (the app warns if not), spoken cues use the system speech engine and can pop when they end on Firefox/macOS (tones are unaffected), and Firefox desktop does not install PWAs, but the offline cache still works.
+sample rate (the app warns if not), and Firefox desktop does not install PWAs, but the offline cache still works.
 
 ## Using it
 
@@ -39,7 +39,14 @@ sample rate (the app warns if not), spoken cues use the system speech engine and
 - **Tones**: each phase has one soft tone and they differ by pitch only: Mount 440 Hz, Aim 523 Hz, Green 659 Hz
   (rising through the hold), and a low 262 Hz tone for Abort. Presets already saved on a device keep their old tones; pick
   a new one with "Load a sound…" in the editor.
-- **Presets**: edit phase times, tone pitch/wave/length/repeats/volume (with ▶ preview) and spoken cue text. Share
+- **Cues**: choose what announces each phase: tones + voice, tones only, voice only, or visual only (colour and
+  countdown). The voice says one word per phase in English (Mount, Aim, Squeeze, Abort, Rest) or German (Anschlag,
+  Zielen, Abziehen, Absetzen, Pause). The language defaults to the phone's and can be changed on the Timer screen. The
+  words are pre-rendered clips in `public/voice/<lang>/`, played on the same audio clock as the tones, so they start
+  with the tone and need no speech engine (which on iPhone interrupts the audio and freezes the timer). To change a
+  word or voice, edit `scripts/generate-voice.py` and `PHRASES` in `src/lib/audio/voice.ts`, then run
+  `python3 scripts/generate-voice.py` (macOS only; the clips are committed).
+- **Presets**: edit phase times, tone pitch/wave/length/repeats/volume (with ▶ preview) and which voice word a phase says. Share
   produces `…/#p=<base64url JSON>`; opening it offers to import. Presets live in `localStorage` (cookies are capped at
   4 KB, are sent with every request, and Safari expires them).
 - **Detect**: calibrate the microphone click detector (3 s of silence, then 5 dry-fires). Detected shots are scored

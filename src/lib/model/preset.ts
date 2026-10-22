@@ -60,7 +60,7 @@ export const DEFAULT_PRESET: Preset = {
       startSec: 0,
       color: '#2563eb',
       cue: CUE_PRESETS.Mid,
-      speak: 'Mount',
+      speak: 'mount',
     },
     {
       id: 'aim',
@@ -70,7 +70,7 @@ export const DEFAULT_PRESET: Preset = {
       startSec: 8,
       color: '#d97706',
       cue: CUE_PRESETS['Mid-high'],
-      speak: 'Aim',
+      speak: 'aim',
     },
     {
       id: 'green',
@@ -80,7 +80,7 @@ export const DEFAULT_PRESET: Preset = {
       startSec: 11,
       color: '#16a34a',
       cue: CUE_PRESETS.High,
-      speak: 'Green',
+      speak: 'green',
     },
     {
       id: 'abort',
@@ -90,7 +90,7 @@ export const DEFAULT_PRESET: Preset = {
       startSec: 14,
       color: '#dc2626',
       cue: CUE_PRESETS.Low,
-      speak: 'Abort',
+      speak: 'abort',
     },
   ],
 }
