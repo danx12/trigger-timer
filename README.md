@@ -36,6 +36,9 @@ sample rate (the app warns if not), spoken cues use the system speech engine and
 
 - **Timer**: pick a preset and press Start. Audio starts on that tap (required by Safari). The screen is kept awake. Keep the app in the foreground: cues are scheduled only a fraction of a second ahead,
   so a backgrounded page or locked screen can drop them.
+- **Tones**: each phase has one soft tone and they differ by pitch only: Mount 440 Hz, Aim 523 Hz, Green 659 Hz
+  (rising through the hold), and a low 220 Hz tone for Abort. Presets already saved on a device keep their old tones; pick
+  a new one with "Load a sound…" in the editor.
 - **Presets**: edit phase times, tone pitch/wave/length/repeats/volume (with ▶ preview) and spoken cue text. Share
   produces `…/#p=<base64url JSON>`; opening it offers to import. Presets live in `localStorage` (cookies are capped at
   4 KB, are sent with every request, and Safari expires them).
