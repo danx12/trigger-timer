@@ -46,6 +46,9 @@ sample rate (the app warns if not), and Firefox desktop does not install PWAs, b
   with the tone and need no speech engine (which on iPhone interrupts the audio and freezes the timer). To change a
   word or voice, edit `scripts/generate-voice.py` and `PHRASES` in `src/lib/audio/voice.ts`, then run
   `python3 scripts/generate-voice.py` (macOS only; the clips are committed).
+- **Built-in presets**: Standard (35 s cycle, abort at 14 s), plus Standard and Beginner (4 s longer mount, 1 s longer
+  aim, abort at 19 s) variants with the rest 5 s or 15 s longer. A device gets each one once, so deleting one keeps it
+  deleted; new built-ins show up at the end of the list after an update.
 - **Presets**: edit phase times, tone pitch/wave/length/repeats/volume (with ▶ preview) and which voice word a phase says. Share
   produces `…/#p=<base64url JSON>`; opening it offers to import. Presets live in `localStorage` (cookies are capped at
   4 KB, are sent with every request, and Safari expires them).
