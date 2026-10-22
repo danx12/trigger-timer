@@ -33,7 +33,7 @@ export function primeSpeech(): void {
 }
 
 /** Speaks a short phrase. Not sample-accurate, so it complements (never replaces) the tone cue. */
-export function speak(text: string, volume = 1): void {
+export function speak(text: string, volume = 1, onStatus?: (status: string) => void): void {
   if (!text || !supported()) return
   const synth = window.speechSynthesis
   const u = new SpeechSynthesisUtterance(text)
@@ -44,6 +44,8 @@ export function speak(text: string, volume = 1): void {
     u.voice = voice
     u.lang = voice.lang
   }
+  u.onstart = () => onStatus?.(`spoke “${text}”`)
+  u.onerror = (e) => onStatus?.(`blocked (${e.error})`)
   // A paused queue (seen on iOS after interruptions) would swallow the cue.
   synth.resume()
   synth.speak(u)

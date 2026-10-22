@@ -32,7 +32,7 @@ install, offline, the mute switch, screen lock and the full calibration flow.
 
 ## What to check on a real device
 
-- Spoken cues: turn on "Speak phase names", tap Start and listen for "Mount" at 0 s and "Aim" at 8 s along with the tones. Repeat with the silent switch on and off and after locking and unlocking the screen.
+- Spoken cues (the Simulator reports "spoke" for every cue, but it has no silent switch, so only a phone proves you can hear them): read the "Voice:" line while running, and turn on "Speak phase names", tap Start and listen for "Mount" at 0 s and "Aim" at 8 s along with the tones. Repeat with the silent switch on and off and after locking and unlocking the screen.
 - Cues are audible with the mute switch on and when the screen dims (the screen should stay awake while running).
 - With detection on, cues still play and the mic prompt appears once; routing may switch to the receiver, so check
   volume.

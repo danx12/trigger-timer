@@ -20,6 +20,7 @@ const preset = $derived(activePreset())
 
 let running = $state(false)
 let error = $state('')
+let voiceStatus = $state('')
 let elapsed = $state(-1)
 let shots = $state<Shot[]>([])
 let sessionId = ''
@@ -48,6 +49,7 @@ async function start() {
   // Must run synchronously inside the tap, before any await: iOS drops speech that was never unlocked by a gesture.
   if (app.settings.speak) primeSpeech()
   error = ''
+  voiceStatus = app.settings.speak ? 'waiting for first cue…' : ''
   try {
     const ctx = await unlockAudio()
     const { master } = getAudio()
@@ -57,7 +59,7 @@ async function start() {
     scheduler.onCue = (e) => {
       if (!app.settings.speak) return
       const delay = Math.max(0, (e.time - ctx.currentTime) * 1000)
-      setTimeout(() => running && speak(e.phase.speak, app.settings.masterVolume), delay)
+      setTimeout(() => running && speak(e.phase.speak, app.settings.masterVolume, (st) => (voiceStatus = st)), delay)
     }
     shots = []
     sessionId = crypto.randomUUID()
@@ -218,6 +220,9 @@ const bg = $derived(pos ? `color-mix(in srgb, ${pos.phase.color} 35%, #0b0f14)` 
       </div>
     {:else}
       <div style="text-align:center;font-size:2rem;padding:3rem 0">Get ready…</div>
+    {/if}
+    {#if app.settings.speak && voiceStatus}
+      <div class="muted">Voice: {voiceStatus}</div>
     {/if}
     {#if lastShot}
       <div class="card">
