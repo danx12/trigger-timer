@@ -56,10 +56,17 @@ export interface CueWindow {
 
 const TICK_MS = 25
 const HORIZON_S = 0.25
+/** A cue this far behind the audio clock is skipped rather than played late. */
+const STALE_S = 0.5
+const RESUME_RETRY_MS = 250
 
 /** Look-ahead scheduler: queues cue oscillators slightly ahead of the audio clock. */
 export class Scheduler {
   t0 = 0
+  /** performance.now() at which the cycle began; the wall-clock reference used to realign after an interruption. */
+  private wall0 = 0
+  private stalled = false
+  private lastResume = 0
   private nextIndex = 0
   private timer: number | null = null
   private windows: CueWindow[] = []
@@ -74,6 +81,8 @@ export class Scheduler {
   start(t0 = this.ctx.currentTime + 0.1): void {
     this.stop()
     this.t0 = t0
+    this.wall0 = performance.now() + (t0 - this.ctx.currentTime) * 1000
+    this.stalled = false
     this.nextIndex = 0
     this.windows = []
     this.timer = window.setInterval(() => this.tick(), TICK_MS)
@@ -89,8 +98,14 @@ export class Scheduler {
     return this.timer !== null
   }
 
+  /** Seconds since the cycle began; follows the wall clock while the audio clock is stopped. */
   elapsed(): number {
+    if (this.ctx.state !== 'running') return this.wallElapsed()
     return this.ctx.currentTime - this.t0
+  }
+
+  private wallElapsed(): number {
+    return (performance.now() - this.wall0) / 1000
   }
 
   /** True if ctx time `t` falls inside (or just after) one of our own cues. */
@@ -98,7 +113,30 @@ export class Scheduler {
     return this.windows.some((w) => t >= w.start - 0.02 && t <= w.end + tailSec)
   }
 
+  /**
+   * iOS interrupts the audio context while speech plays, which freezes `currentTime`. Keep asking it to resume, and
+   * once it does, move t0 so the timeline matches the wall clock again; cues missed meanwhile are skipped.
+   */
+  private watchInterruption(): boolean {
+    if (this.ctx.state !== 'running') {
+      this.stalled = true
+      const now = performance.now()
+      if (now - this.lastResume >= RESUME_RETRY_MS) {
+        this.lastResume = now
+        this.ctx.resume().catch(() => {})
+      }
+      return false
+    }
+    if (this.stalled) {
+      this.stalled = false
+      this.t0 = this.ctx.currentTime - this.wallElapsed()
+      this.windows = []
+    }
+    return true
+  }
+
   private tick(): void {
+    if (!this.watchInterruption()) return
     const preset = this.getPreset()
     const perCycle = preset.phases.length
     const horizon = this.ctx.currentTime + HORIZON_S
@@ -107,6 +145,10 @@ export class Scheduler {
       const phase = preset.phases[this.nextIndex % perCycle]
       const time = this.t0 + cycle * preset.cycleSec + phase.startSec
       if (time > horizon) break
+      if (time < this.ctx.currentTime - STALE_S) {
+        this.nextIndex++
+        continue
+      }
       const when = Math.max(time, this.ctx.currentTime)
       playCue(this.ctx, this.dest, phase.cue, when)
       this.windows.push({ start: when, end: when + cueLength(phase.cue) })
