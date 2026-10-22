@@ -40,7 +40,7 @@ export const WAVES: Wave[] = ['sine', 'triangle', 'square', 'sawtooth']
  * so its overtones carry on phone speakers, which barely reproduce a pure sine below ~250 Hz.
  */
 export const CUE_PRESETS: Record<string, Cue> = {
-  Low: { freq: 220, wave: 'triangle', durMs: 450, repeats: 1, gapMs: 0, volume: 0.45 },
+  Low: { freq: 262, wave: 'triangle', durMs: 450, repeats: 1, gapMs: 0, volume: 0.45 },
   Mid: { freq: 440, wave: 'sine', durMs: 250, repeats: 1, gapMs: 0, volume: 0.3 },
   'Mid-high': { freq: 523, wave: 'sine', durMs: 250, repeats: 1, gapMs: 0, volume: 0.3 },
   High: { freq: 659, wave: 'sine', durMs: 250, repeats: 1, gapMs: 0, volume: 0.3 },
